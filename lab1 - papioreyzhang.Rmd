@@ -11,63 +11,45 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(reshape2)
-library(utils)
-untar("ushcn.tmax.latest.raw.tar.gz")
 
-readlines()
 
 ```
 
 ## Lab1
 
-
-```{r stations}
-stations <- read_fwf("USH00011084.raw.tmax",
-                  col_positions = fwf_positions(
-                    start=c( 1,3,4,6,13,22,33,39,42,73,80,87,94), 
-                    end  =c(2,3,5,11,20,30,37,40,71,78,85,92,95)))
-
-names(stations) <- c("countrycode", 
-                  "networkcode",
-                  "IDp",
-                  "coopID",
-                  "lat",
-                  "long",
-                  "elev",
-                  "state",
-                  "name",
-                  "comp1",
-                  "comp2",
-                  "comp3",
-                  "utcO"
-                  )
-
-head(stations)
-```
-
+The following function takes a 6 digit station ID and concatenates it into a file name.
 
 ```{r blah}
 
 tmax <- function(statNumb){
-  <- paste(statNumb)
-  station <- read_fwf("https://www1.ncdc.noaa.gov/pub/data/ushcn/v2.5/ushcn.tmax.latest.raw.tar.gz",
+  ##for a given 6-digit station ID, reads in that file
+ file <- paste("USH00", statNumb, ".raw.tmax", sep="" )
+  station <- read_fwf(file,
   col_positions = fwf_positions(
     start=c( 1,13, rep(16+9*0:11, each=4) + c(1,7,8,9)), 
     end  =c(11,16, rep(16+9*0:11, each=4) + c(6,7,8,9))))
+  
+  ##gives human friendly names to variables
 names(station) <- c("Station", "Year", 
   paste0(rep(c("Value","DMflag", "QCflag", "DSflag"), 12), 
          rep(1:12, each=4)))
-}
 
-
-test <- station %>% 
+##remove missing values, gather data 
+test  <- station %>% 
   gather(key="Month", value="Temp_Max", starts_with("Value"))
 test$Month <- as.numeric(gsub("Value", "", test$Month))
 test$Temp_Max <- replace(test$Temp_Max, 
                               test$Temp_Max == -9999, NA)
 
-test %>% ggplot(aes(x = Year, Temp_Max/100)) + 
+test
+}
+
+
+
+trial %>% ggplot(aes(x = Year, Temp_Max/100)) + 
   geom_point() + facet_wrap(~Month, nrow=2) 
+
+trial %>% 
 
 ```
 
