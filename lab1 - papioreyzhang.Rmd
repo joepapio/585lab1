@@ -15,12 +15,15 @@ library(reshape2)
 
 ```
 
-## Lab1
+# Book
 
-The following function takes a 6 digit station ID and concatenates it into a file name.
+I was able to go to Hadley’s github and copy the link in order to use it to clone the project in R. Once this was completed, I entered the folder called Book, and the only R code file in this folder was build-book.r. I opened this file and ran the entire set of code. The first message I encountered was that the “bookdown” was not recognized. After installing this, I ran the entire set of code again. Due to the fact that there were a variety of errors, I ran the code line by line to discover where the first problem was. The primary error I found was the file miktex-maketfm.exe could not be found. The problem was that miktex was not on the computer. I attempted to fix the problem by downloading miktex. Following this, a different error appeared (“Fontconfig error:”C:2.9/fontconfig/config/conf.d/10-scale-bitmap-fonts.conf“, line 72: non-double matrix element”). I was unable to fix the error.
 
-```{r blah}
+# Weather Stations
 
+The following function takes a 6 digit station ID and concatenates it into a file name, then using the read_fwf function from tidyverse, reads that file into a tibble, renames the variables into something more human friendly, and finally cleans the data and replaces missing values.
+
+```{r function}
 tmax <- function(statNumb){
   ##for a given 6-digit station ID, reads in that file
  file <- paste("USH00", statNumb, ".raw.tmax", sep="" )
@@ -44,12 +47,28 @@ test$Temp_Max <- replace(test$Temp_Max,
 test
 }
 
-
-
-trial %>% ggplot(aes(x = Year, Temp_Max/100)) + 
-  geom_point() + facet_wrap(~Month, nrow=2) 
-
-trial %>% 
-
 ```
 
+```{r quiet, echo=FALSE, message=FALSE}
+trial <- tmax(107264)
+```
+
+#Station 107264
+
+For many of the stations, the data don’t really demonstrate the trends of global warming as well as we might hope. However, more southern and more northern latitudes are experiencing the changes in temperature from climate change more dramatically than are the more equitorial regions of the globe.
+
+The northern most station in this dataset is located in **Portmill, ID**, at latitude 48.9958 degrees. Using the data from this weather station, the trends of climate change are clear when we observe the yearly mean maximum temperature.
+
+```{r viz, warning=FALSE}
+
+trial %>%  group_by(Year) %>%
+  summarize(
+    mean=mean(Temp_Max/100)
+  ) %>%
+  ggplot(aes(x=Year, mean)) + 
+  theme_bw() +
+  geom_point(color="blue") +
+  geom_smooth(method="lm", se=FALSE, color="red") +
+  labs(title= "Yearly mean maximum temperatures in Portmill, ID",
+       y="Degrees Celsius")
+```
